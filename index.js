@@ -3,11 +3,12 @@ let width = 20;
 let height = 20;
 let x = 10;
 let y = 10;
+let snakeBody = [];
 let score;
 let scoreNum = 0;
 let foodX;
 let foodY;
-let direction = "XD";
+let direction;
 let board;
 let context;
 
@@ -19,6 +20,10 @@ window.onload = function () {
   foodX = Math.floor(Math.random() * (board.height / blockSize));
   foodY = Math.floor(Math.random() * (board.height / blockSize));
   input();
+  initialize();
+};
+
+function initialize() {
   setInterval(() => {
     context = board.getContext("2d");
     update();
@@ -26,7 +31,7 @@ window.onload = function () {
     snake();
     logic();
   }, 100);
-};
+}
 
 function update() {
   context.fillStyle = "black";
@@ -49,7 +54,7 @@ function snake() {
   for (let i = 0; i < board.width; i++) {
     for (let c = 0; c < board.height; c++) {
       if (i == x && c == y) {
-        context.fillStyle = "green";
+        context.fillStyle = "lime";
         context.fillRect(
           x * blockSize,
           y * blockSize,
@@ -66,6 +71,7 @@ function snake() {
         );
       } else if (x == foodX && y == foodY) {
         scoreNum++;
+        snakeBody.push([foodX, foodY]);
         foodX = Math.floor(Math.random() * (board.height / blockSize));
         foodY = Math.floor(Math.random() * (board.height / blockSize));
       }
@@ -95,6 +101,7 @@ function input() {
         if (direction != "LEFT") {
           direction = "RIGHT";
         }
+        break;
     }
   });
 }
@@ -118,4 +125,30 @@ function logic() {
   } else if (y < 0) {
     y = board.height / blockSize;
   }
+  for (let i = 0; i < snakeBody.length; i++) {
+    context.fillStyle = "lime";
+    context.fillRect(
+      snakeBody[i][0] * blockSize,
+      snakeBody[i][1] * blockSize,
+      blockSize - 1,
+      blockSize - 1
+    );
+  }
+  for (let i = snakeBody.length - 1; i > 0; i--) {
+    snakeBody[i] = snakeBody[i - 1];
+    if (x == snakeBody[i][0] && y == snakeBody[i][1]) {
+      gameOver();
+    }
+  }
+  snakeBody[0] = [x, y];
+}
+
+function gameOver() {
+  direction = "STAND";
+  x = 10;
+  y = 10;
+  snakeBody = [[10, 10]];
+  foodX = Math.floor(Math.random() * (board.height / blockSize));
+  foodY = Math.floor(Math.random() * (board.height / blockSize));
+  scoreNum = 0;
 }
