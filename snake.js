@@ -165,6 +165,7 @@ function gameOver() {
   snakeTail = [[width / 2, height / 2]];
   foodX = Math.floor(Math.random() * width);
   foodY = Math.floor(Math.random() * height);
+  scoreNum = 0;
 }
 
 function gamePaused() {
