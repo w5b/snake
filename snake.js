@@ -3,6 +3,8 @@ let width = 20;
 let height = 20;
 let x = width / 2;
 let y = height / 2;
+let paused = false;
+let scoreNum = 0;
 let over;
 let foodX = Math.floor(Math.random() * width);
 let foodY = Math.floor(Math.random() * height);
@@ -11,15 +13,20 @@ let direction = "STAND";
 
 window.onload = function () {
   let canvas = document.getElementById("canvas");
+  let score = document.getElementById("score");
   window.ctx = canvas.getContext("2d");
   canvas.height = width * blockSize;
   canvas.width = height * blockSize;
   ctx.fillStyle = "black";
   input();
   setInterval(() => {
-    draw();
-    // grid();
-    logic();
+    if (!paused) {
+      draw();
+      // grid();
+      logic();
+    } else {
+      gamePaused();
+    }
   }, 1000 / 12);
 };
 
@@ -87,6 +94,13 @@ function input() {
           direction = "RIGHT";
         }
         break;
+      case 27:
+        if (!paused) {
+          paused = true;
+        } else {
+          paused = false;
+        }
+        break;
     }
   });
 }
@@ -116,9 +130,22 @@ function logic() {
     y = 0;
   }
   if (x == foodX && y == foodY) {
+    scoreNum++;
     snakeTail.push([foodX, foodY]);
-    foodX = Math.floor(Math.random() * width);
-    foodY = Math.floor(Math.random() * height);
+    let notInBody = false;
+    while (!notInBody) {
+      let FoodXTemp = Math.floor(Math.random() * width);
+      let FoodYTemp = Math.floor(Math.random() * height);
+      for (let i = 0; i < snakeTail.length; i++) {
+        if ([FoodXTemp, FoodYTemp] == snakeTail[i]) {
+          continue;
+        } else {
+          notInBody = true;
+        }
+      }
+      foodX = FoodXTemp;
+      foodY = FoodYTemp;
+    }
   }
   for (let i = snakeTail.length - 1; i > 0; i--) {
     snakeTail[i] = snakeTail[i - 1];
@@ -128,6 +155,7 @@ function logic() {
     }
   }
   snakeTail[0] = [x, y];
+  score.innerText = "Score: " + scoreNum;
 }
 
 function gameOver() {
@@ -137,4 +165,10 @@ function gameOver() {
   snakeTail = [[width / 2, height / 2]];
   foodX = Math.floor(Math.random() * width);
   foodY = Math.floor(Math.random() * height);
+}
+
+function gamePaused() {
+  ctx.fillStyle = "White";
+  ctx.font = "50px Arial";
+  ctx.fillText("Paused", canvas.width / 2 - 100, canvas.height / 2);
 }
